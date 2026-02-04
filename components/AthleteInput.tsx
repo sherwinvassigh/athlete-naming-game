@@ -7,10 +7,11 @@ import { Id } from "@/convex/_generated/dataModel";
 
 interface AthleteInputProps {
   gameId: Id<"games">;
+  playerName: string;
   disabled?: boolean;
 }
 
-export function AthleteInput({ gameId, disabled }: AthleteInputProps) {
+export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps) {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,7 +26,7 @@ export function AthleteInput({ gameId, disabled }: AthleteInputProps) {
     setIsSubmitting(true);
 
     try {
-      await addAthlete({ gameId, name: name.trim() });
+      await addAthlete({ gameId, name: name.trim(), playerName });
       setName("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add athlete");

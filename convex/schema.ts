@@ -13,6 +13,7 @@ export default defineSchema({
     name: v.string(),
     normalizedName: v.string(),
     enteredAt: v.number(),
+    playerName: v.string(),
   })
     .index("by_game", ["gameId"])
     .index("by_game_and_name", ["gameId", "normalizedName"]),

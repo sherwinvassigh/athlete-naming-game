@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -8,13 +9,43 @@ import { AthleteInput } from "@/components/AthleteInput";
 import { AthleteList } from "@/components/AthleteList";
 import { GameTimer } from "@/components/GameTimer";
 import { LocalClock } from "@/components/LocalClock";
+import { PlayerNamePrompt } from "@/components/PlayerNamePrompt";
+import { GameOverSummary } from "@/components/GameOverSummary";
 import Link from "next/link";
 
 export default function GamePage() {
   const params = useParams();
   const gameId = params.gameId as Id<"games">;
+  const [playerName, setPlayerName] = useState<string | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
 
   const game = useQuery(api.games.get, { gameId });
+  const athletes = useQuery(api.athletes.listByGame, { gameId });
+
+  // Check if game is expired
+  useEffect(() => {
+    if (game) {
+      const checkExpired = () => {
+        setIsExpired(Date.now() > game.expiresAt);
+      };
+      checkExpired();
+      const interval = setInterval(checkExpired, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [game]);
+
+  // Check for saved player name in localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem(`player-name-${gameId}`);
+    if (savedName) {
+      setPlayerName(savedName);
+    }
+  }, [gameId]);
+
+  const handlePlayerNameSubmit = (name: string) => {
+    localStorage.setItem(`player-name-${gameId}`, name);
+    setPlayerName(name);
+  };
 
   if (game === undefined) {
     return (
@@ -35,7 +66,31 @@ export default function GamePage() {
     );
   }
 
-  const isExpired = Date.now() > game.expiresAt;
+  // Show player name prompt if not set
+  if (!playerName) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <PlayerNamePrompt onSubmit={handlePlayerNameSubmit} />
+      </main>
+    );
+  }
+
+  // Show game over summary when expired
+  if (isExpired && athletes) {
+    return (
+      <main className="min-h-screen p-8 bg-gray-50 flex flex-col items-center justify-center">
+        <GameOverSummary athletes={athletes} />
+
+        {/* Still show the full list below */}
+        <div className="mt-8 w-full max-w-md">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
+            Full List
+          </h3>
+          <AthleteList gameId={gameId} />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen p-8 bg-gray-50">
@@ -47,6 +102,9 @@ export default function GamePage() {
               Athlete Naming Game
             </h1>
             <LocalClock />
+            <div className="text-sm text-gray-500 mt-1">
+              Playing as <span className="font-medium text-gray-700">{playerName}</span>
+            </div>
           </div>
           <div className="text-right">
             <div className="text-sm text-gray-500 mb-1">Time remaining</div>
@@ -75,20 +133,8 @@ export default function GamePage() {
 
         {/* Input */}
         <div className="flex justify-center">
-          <AthleteInput gameId={gameId} disabled={isExpired} />
+          <AthleteInput gameId={gameId} playerName={playerName} disabled={isExpired} />
         </div>
-
-        {isExpired && (
-          <div className="text-center">
-            <p className="text-red-500 font-semibold mb-4">Game Over!</p>
-            <Link
-              href="/"
-              className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Start New Game
-            </Link>
-          </div>
-        )}
 
         {/* List */}
         <div className="flex justify-center">

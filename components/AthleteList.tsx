@@ -31,9 +31,10 @@ export function AthleteList({ gameId }: AthleteListProps) {
           {athletes.map((athlete) => (
             <li
               key={athlete._id}
-              className="px-3 py-2 bg-gray-50 rounded hover:bg-gray-100"
+              className="px-3 py-2 bg-gray-50 rounded hover:bg-gray-100 flex justify-between items-center"
             >
-              {athlete.name}
+              <span>{athlete.name}</span>
+              <span className="text-xs text-gray-400">{athlete.playerName}</span>
             </li>
           ))}
         </ul>

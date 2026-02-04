@@ -5,6 +5,7 @@ export const add = mutation({
   args: {
     gameId: v.id("games"),
     name: v.string(),
+    playerName: v.string(),
   },
   handler: async (ctx, args) => {
     const trimmedName = args.name.trim();
@@ -32,6 +33,7 @@ export const add = mutation({
       name: trimmedName,
       normalizedName,
       enteredAt: Date.now(),
+      playerName: args.playerName,
     });
 
     return { success: true };
