@@ -11,26 +11,30 @@ interface AthleteListProps {
 
 export function AthleteList({ gameId }: AthleteListProps) {
   const athletes = useQuery(api.athletes.listByGame, { gameId });
-  const [newIds, setNewIds] = useState<Set<string>>(new Set());
-  const prevCountRef = useRef<number>(0);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const prevFirstIdRef = useRef<string | null>(null);
 
-  // Track new entries and highlight them
+  // Only highlight the single newest entry (first in list since sorted desc)
   useEffect(() => {
-    if (athletes && athletes.length > prevCountRef.current) {
-      // Find new entries (they're at the start since sorted desc)
-      const numNew = athletes.length - prevCountRef.current;
-      const newEntryIds = athletes.slice(0, numNew).map((a) => a._id);
+    if (athletes && athletes.length > 0) {
+      const newestId = athletes[0]._id;
 
-      setNewIds(new Set(newEntryIds));
+      // Only highlight if this is a new entry we haven't seen
+      if (newestId !== prevFirstIdRef.current) {
+        // Don't highlight on initial load
+        if (prevFirstIdRef.current !== null) {
+          setHighlightedId(newestId);
 
-      // Clear highlight after animation
-      const timer = setTimeout(() => {
-        setNewIds(new Set());
-      }, 1500);
+          // Clear highlight after animation
+          const timer = setTimeout(() => {
+            setHighlightedId(null);
+          }, 1500);
 
-      return () => clearTimeout(timer);
+          return () => clearTimeout(timer);
+        }
+        prevFirstIdRef.current = newestId;
+      }
     }
-    prevCountRef.current = athletes?.length ?? 0;
   }, [athletes]);
 
   if (athletes === undefined) {
@@ -54,7 +58,7 @@ export function AthleteList({ gameId }: AthleteListProps) {
             <li
               key={athlete._id}
               className={`px-3 py-2 rounded flex justify-between items-center transition-all duration-500 ${
-                newIds.has(athlete._id)
+                highlightedId === athlete._id
                   ? "bg-green-100 border-l-4 border-green-500"
                   : "bg-gray-50 hover:bg-gray-100"
               }`}
