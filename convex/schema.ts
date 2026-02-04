@@ -1,0 +1,19 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  games: defineTable({
+    createdAt: v.number(),
+    expiresAt: v.number(),
+    isActive: v.boolean(),
+  }),
+
+  athletes: defineTable({
+    gameId: v.id("games"),
+    name: v.string(),
+    normalizedName: v.string(),
+    enteredAt: v.number(),
+  })
+    .index("by_game", ["gameId"])
+    .index("by_game_and_name", ["gameId", "normalizedName"]),
+});
