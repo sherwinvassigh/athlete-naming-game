@@ -100,51 +100,83 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 max-w-md w-full">
-      <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
-        🎉 Time's Up! 🎉
-      </h2>
-      <p className="text-center text-5xl font-bold text-blue-600 mb-6">
-        {athletes.length} <span className="text-lg font-normal text-gray-500">athletes named</span>
-      </p>
+  // Share results (native share or copy to clipboard)
+  const handleShare = async () => {
+    const text = `Athlete Naming Game Results!\n\nWe named ${athletes.length} athletes!\n\n${sortedPlayers.map(([name, count], i) => `${i === 0 && sortedPlayers.length > 1 ? "🏆 " : ""}${name}: ${count}`).join("\n")}`;
 
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert("Results copied to clipboard!");
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 w-full">
+      {/* Screenshot-friendly header section */}
+      <div className="text-center pb-4 border-b border-gray-100 mb-4">
+        <div className="text-4xl mb-2">🏆</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">
+          Game Complete!
+        </h2>
+        <div className="text-6xl font-bold text-blue-600 my-3">
+          {athletes.length}
+        </div>
+        <p className="text-gray-500 font-medium">athletes named</p>
+      </div>
+
+      {/* Player breakdown - prominent for screenshots */}
       {sortedPlayers.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            Breakdown by Player
-          </h3>
+        <div className="mb-4">
           <ul className="space-y-2">
             {sortedPlayers.map(([playerName, count], index) => (
               <li
                 key={playerName}
-                className="flex justify-between items-center px-4 py-2 bg-gray-50 rounded-lg"
+                className={`flex justify-between items-center px-4 py-3 rounded-xl ${
+                  index === 0 && sortedPlayers.length > 1
+                    ? "bg-yellow-50 border-2 border-yellow-200"
+                    : "bg-gray-50"
+                }`}
               >
                 <span className="flex items-center gap-2">
                   {index === 0 && sortedPlayers.length > 1 && (
-                    <span className="text-yellow-500">🏆</span>
+                    <span className="text-xl">🏆</span>
                   )}
-                  <span className="font-medium">{playerName}</span>
+                  <span className="font-semibold text-gray-900">{playerName}</span>
                 </span>
-                <span className="text-blue-600 font-bold">{count}</span>
+                <span className="text-xl font-bold text-blue-600">{count}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      <div className="space-y-3">
-        <button
-          onClick={handleExport}
-          className="block w-full text-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
-        >
-          Export Results
-        </button>
+      {/* Action buttons */}
+      <div className="space-y-2 pt-2">
+        <div className="flex gap-2">
+          <button
+            onClick={handleShare}
+            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+          >
+            Share
+          </button>
+          <button
+            onClick={handleExport}
+            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+          >
+            Export
+          </button>
+        </div>
         <Link
           href="/"
-          className="block w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          className="block w-full text-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors"
         >
-          Start New Game
+          Play Again
         </Link>
       </div>
     </div>

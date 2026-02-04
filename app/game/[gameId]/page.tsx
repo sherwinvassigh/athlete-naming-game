@@ -18,27 +18,34 @@ export default function GamePage() {
   const gameId = params.gameId as Id<"games">;
   const [playerName, setPlayerName] = useState<string | null>(null);
   const [isExpired, setIsExpired] = useState(false);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
 
   const game = useQuery(api.games.get, { gameId });
   const athletes = useQuery(api.athletes.listByGame, { gameId });
   const players = useQuery(api.players.listByGame, { gameId });
   const joinGame = useMutation(api.players.join);
   const startGame = useMutation(api.games.start);
+  const endGame = useMutation(api.games.end);
 
   const isStarted = !!game?.startedAt;
   const isUnlimited = !game?.durationMinutes;
+  const isEnded = game?.isActive === false;
 
-  // Check if game is expired (only for timed games that have started)
+  // Check if game is expired (timed games) or manually ended
   useEffect(() => {
-    if (game && game.startedAt && game.expiresAt) {
-      const checkExpired = () => {
-        setIsExpired(Date.now() > game.expiresAt!);
-      };
-      checkExpired();
-      const interval = setInterval(checkExpired, 1000);
-      return () => clearInterval(interval);
+    if (game) {
+      if (isEnded) {
+        setIsExpired(true);
+      } else if (game.startedAt && game.expiresAt) {
+        const checkExpired = () => {
+          setIsExpired(Date.now() > game.expiresAt!);
+        };
+        checkExpired();
+        const interval = setInterval(checkExpired, 1000);
+        return () => clearInterval(interval);
+      }
     }
-  }, [game]);
+  }, [game, isEnded]);
 
   // Check for saved player name in localStorage
   useEffect(() => {
@@ -62,6 +69,11 @@ export default function GamePage() {
 
   const handleStartGame = async () => {
     await startGame({ gameId });
+  };
+
+  const handleEndGame = async () => {
+    await endGame({ gameId });
+    setShowEndConfirm(false);
   };
 
   if (game === undefined) {
@@ -92,18 +104,22 @@ export default function GamePage() {
     );
   }
 
-  // Show game over summary when expired (only for timed games)
-  if (isExpired && athletes && !isUnlimited) {
+  // Show game over summary when expired or ended
+  if ((isExpired || isEnded) && athletes) {
     return (
-      <main className="min-h-screen p-8 bg-gray-50 flex flex-col items-center justify-center">
-        <GameOverSummary athletes={athletes} />
+      <main className="min-h-screen p-4 bg-gray-50">
+        <div className="max-w-md mx-auto">
+          <GameOverSummary athletes={athletes} />
 
-        {/* Still show the full list below */}
-        <div className="mt-8 w-full max-w-md">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
-            Full List
-          </h3>
-          <AthleteList gameId={gameId} />
+          {/* Full list below, collapsible on mobile */}
+          <details className="mt-6">
+            <summary className="text-sm font-semibold text-gray-500 uppercase tracking-wide cursor-pointer text-center">
+              View Full List ({athletes.length})
+            </summary>
+            <div className="mt-3">
+              <AthleteList gameId={gameId} />
+            </div>
+          </details>
         </div>
       </main>
     );
@@ -190,7 +206,7 @@ export default function GamePage() {
   // ACTIVE GAME STATE
   return (
     <main className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
@@ -214,22 +230,54 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Player count */}
+        {/* Player count & End Game */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-1 text-sm">
-              <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 rounded-full font-bold">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 rounded-full font-bold text-sm">
                 {playerCount}
               </span>
-              <span className="text-gray-500">
+              <span className="text-sm text-gray-500">
                 {playerCount === 1 ? "player" : "players"}
               </span>
+              <span className="text-xs text-gray-400">
+                ({players?.map((p) => p.playerName).join(", ")})
+              </span>
             </div>
-            <div className="text-xs text-gray-400">
-              {players?.map((p) => p.playerName).join(", ")}
-            </div>
+            <button
+              onClick={() => setShowEndConfirm(true)}
+              className="text-sm text-red-500 hover:text-red-700 font-medium"
+            >
+              End Game
+            </button>
           </div>
         </div>
+
+        {/* End Game Confirmation Modal */}
+        {showEndConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">End Game?</h3>
+              <p className="text-gray-600 mb-4">
+                This will end the game for all players. Are you sure?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowEndConfirm(false)}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEndGame}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+                >
+                  End Game
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Input */}
         <div className="flex justify-center">

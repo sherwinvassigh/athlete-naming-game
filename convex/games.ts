@@ -44,6 +44,24 @@ export const start = mutation({
   },
 });
 
+export const end = mutation({
+  args: {
+    gameId: v.id("games"),
+  },
+  handler: async (ctx, args) => {
+    const game = await ctx.db.get(args.gameId);
+    if (!game) {
+      throw new Error("Game not found");
+    }
+
+    // Set expiresAt to now to end the game immediately
+    await ctx.db.patch(args.gameId, {
+      expiresAt: Date.now(),
+      isActive: false,
+    });
+  },
+});
+
 export const get = query({
   args: { gameId: v.id("games") },
   handler: async (ctx, args) => {
