@@ -5,15 +5,23 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const DURATION_OPTIONS = [
+  { minutes: 5, label: "5 min", description: "Quick round" },
+  { minutes: 15, label: "15 min", description: "Short game" },
+  { minutes: 30, label: "30 min", description: "Medium game" },
+  { minutes: 60, label: "1 hour", description: "Full game" },
+];
+
 export default function Home() {
   const router = useRouter();
   const createGame = useMutation(api.games.create);
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState(60);
 
   const handleCreateGame = async () => {
     setIsCreating(true);
     try {
-      const gameId = await createGame();
+      const gameId = await createGame({ durationMinutes: selectedDuration });
       router.push(`/game/${gameId}`);
     } catch (error) {
       console.error("Failed to create game:", error);
@@ -28,8 +36,30 @@ export default function Home() {
           Athlete Naming Game
         </h1>
         <p className="text-lg text-gray-600 max-w-md">
-          Challenge your friends to name as many athletes as possible in one hour!
+          Challenge your friends to name as many athletes as possible!
         </p>
+
+        {/* Duration Selection */}
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-gray-700">Choose game duration:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {DURATION_OPTIONS.map((option) => (
+              <button
+                key={option.minutes}
+                onClick={() => setSelectedDuration(option.minutes)}
+                className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                  selectedDuration === option.minutes
+                    ? "border-blue-600 bg-blue-50 text-blue-700"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                <div className="font-semibold">{option.label}</div>
+                <div className="text-xs opacity-75">{option.description}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           onClick={handleCreateGame}
           disabled={isCreating}

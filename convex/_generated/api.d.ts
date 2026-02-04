@@ -10,6 +10,7 @@
 
 import type * as athletes from "../athletes.js";
 import type * as games from "../games.js";
+import type * as players from "../players.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   athletes: typeof athletes;
   games: typeof games;
+  players: typeof players;
 }>;
 
 /**

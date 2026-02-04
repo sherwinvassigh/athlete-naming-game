@@ -1,15 +1,17 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-const ONE_HOUR_MS = 60 * 60 * 1000;
-
 export const create = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    durationMinutes: v.number(),
+  },
+  handler: async (ctx, args) => {
     const now = Date.now();
+    const durationMs = args.durationMinutes * 60 * 1000;
     const gameId = await ctx.db.insert("games", {
       createdAt: now,
-      expiresAt: now + ONE_HOUR_MS,
+      expiresAt: now + durationMs,
+      durationMinutes: args.durationMinutes,
       isActive: true,
     });
     return gameId;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { AthleteInput } from "@/components/AthleteInput";
@@ -21,6 +21,8 @@ export default function GamePage() {
 
   const game = useQuery(api.games.get, { gameId });
   const athletes = useQuery(api.athletes.listByGame, { gameId });
+  const players = useQuery(api.players.listByGame, { gameId });
+  const joinGame = useMutation(api.players.join);
 
   // Check if game is expired
   useEffect(() => {
@@ -41,6 +43,13 @@ export default function GamePage() {
       setPlayerName(savedName);
     }
   }, [gameId]);
+
+  // Register player when they join
+  useEffect(() => {
+    if (playerName && gameId) {
+      joinGame({ gameId, playerName });
+    }
+  }, [playerName, gameId, joinGame]);
 
   const handlePlayerNameSubmit = (name: string) => {
     localStorage.setItem(`player-name-${gameId}`, name);
@@ -92,6 +101,8 @@ export default function GamePage() {
     );
   }
 
+  const playerCount = players?.length ?? 0;
+
   return (
     <main className="min-h-screen p-8 bg-gray-50">
       <div className="max-w-2xl mx-auto space-y-8">
@@ -112,9 +123,19 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Share link */}
+        {/* Player count & Share link */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-500 mb-1">Share this link with friends:</div>
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-sm text-gray-500">Share this link with friends:</div>
+            <div className="flex items-center gap-1 text-sm">
+              <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 rounded-full font-bold">
+                {playerCount}
+              </span>
+              <span className="text-gray-500">
+                {playerCount === 1 ? "player" : "players"}
+              </span>
+            </div>
+          </div>
           <div className="flex gap-2">
             <input
               type="text"
@@ -129,6 +150,12 @@ export default function GamePage() {
               Copy
             </button>
           </div>
+          {/* Show player names */}
+          {players && players.length > 0 && (
+            <div className="mt-2 text-xs text-gray-400">
+              {players.map((p) => p.playerName).join(", ")}
+            </div>
+          )}
         </div>
 
         {/* Input */}

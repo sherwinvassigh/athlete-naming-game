@@ -5,6 +5,7 @@ export default defineSchema({
   games: defineTable({
     createdAt: v.number(),
     expiresAt: v.number(),
+    durationMinutes: v.optional(v.number()),
     isActive: v.boolean(),
   }),
 
@@ -13,8 +14,15 @@ export default defineSchema({
     name: v.string(),
     normalizedName: v.string(),
     enteredAt: v.number(),
-    playerName: v.string(),
+    playerName: v.optional(v.string()),
   })
     .index("by_game", ["gameId"])
     .index("by_game_and_name", ["gameId", "normalizedName"]),
+
+  players: defineTable({
+    gameId: v.id("games"),
+    playerName: v.string(),
+    joinedAt: v.number(),
+  })
+    .index("by_game", ["gameId"]),
 });
