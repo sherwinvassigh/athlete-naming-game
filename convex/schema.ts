@@ -4,8 +4,9 @@ import { v } from "convex/values";
 export default defineSchema({
   games: defineTable({
     createdAt: v.number(),
-    expiresAt: v.number(),
-    durationMinutes: v.optional(v.number()),
+    startedAt: v.optional(v.number()),
+    expiresAt: v.optional(v.number()),
+    durationMinutes: v.optional(v.number()), // null = unlimited
     isActive: v.boolean(),
   }),
 

@@ -65,6 +65,41 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
   // Sort players by count (highest first)
   const sortedPlayers = Object.entries(playerCounts).sort((a, b) => b[1] - a[1]);
 
+  // Export results as text file
+  const handleExport = () => {
+    const date = new Date().toLocaleDateString();
+    let content = `Athlete Naming Game Results - ${date}\n`;
+    content += `${"=".repeat(40)}\n\n`;
+    content += `Total Athletes Named: ${athletes.length}\n\n`;
+
+    if (sortedPlayers.length > 0) {
+      content += `Player Breakdown:\n`;
+      sortedPlayers.forEach(([playerName, count], index) => {
+        const trophy = index === 0 && sortedPlayers.length > 1 ? " 🏆" : "";
+        content += `  ${playerName}: ${count}${trophy}\n`;
+      });
+      content += `\n`;
+    }
+
+    content += `All Athletes:\n`;
+    content += `${"-".repeat(40)}\n`;
+    athletes.forEach((athlete, index) => {
+      const by = athlete.playerName ? ` (${athlete.playerName})` : "";
+      content += `${index + 1}. ${athlete.name}${by}\n`;
+    });
+
+    // Create and download file
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `athlete-game-results-${date.replace(/\//g, "-")}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 max-w-md w-full">
       <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
@@ -98,12 +133,20 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
         </div>
       )}
 
-      <Link
-        href="/"
-        className="block w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Start New Game
-      </Link>
+      <div className="space-y-3">
+        <button
+          onClick={handleExport}
+          className="block w-full text-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Export Results
+        </button>
+        <Link
+          href="/"
+          className="block w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Start New Game
+        </Link>
+      </div>
     </div>
   );
 }

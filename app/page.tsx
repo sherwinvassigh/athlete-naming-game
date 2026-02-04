@@ -6,22 +6,24 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const DURATION_OPTIONS = [
-  { minutes: 5, label: "5 min", description: "Quick round" },
-  { minutes: 15, label: "15 min", description: "Short game" },
-  { minutes: 30, label: "30 min", description: "Medium game" },
-  { minutes: 60, label: "1 hour", description: "Full game" },
+  { minutes: 15, label: "15 min", description: "Quick" },
+  { minutes: 30, label: "30 min", description: "Medium" },
+  { minutes: 60, label: "1 hour", description: "Full" },
+  { minutes: null, label: "Unlimited", description: "No timer" },
 ];
 
 export default function Home() {
   const router = useRouter();
   const createGame = useMutation(api.games.create);
   const [isCreating, setIsCreating] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState(60);
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(30);
 
   const handleCreateGame = async () => {
     setIsCreating(true);
     try {
-      const gameId = await createGame({ durationMinutes: selectedDuration });
+      const gameId = await createGame({
+        durationMinutes: selectedDuration ?? undefined
+      });
       router.push(`/game/${gameId}`);
     } catch (error) {
       console.error("Failed to create game:", error);
@@ -45,7 +47,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-2">
             {DURATION_OPTIONS.map((option) => (
               <button
-                key={option.minutes}
+                key={option.minutes ?? "unlimited"}
                 onClick={() => setSelectedDuration(option.minutes)}
                 className={`px-4 py-2 rounded-lg border-2 transition-all ${
                   selectedDuration === option.minutes
@@ -65,10 +67,10 @@ export default function Home() {
           disabled={isCreating}
           className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-lg"
         >
-          {isCreating ? "Creating..." : "Start New Game"}
+          {isCreating ? "Creating..." : "Create Game"}
         </button>
         <p className="text-sm text-gray-500">
-          Share the game link with friends to play together
+          Share the game link with friends, then start when ready
         </p>
       </div>
     </main>
