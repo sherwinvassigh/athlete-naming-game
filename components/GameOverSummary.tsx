@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 
@@ -15,13 +15,18 @@ interface GameOverSummaryProps {
 }
 
 export function GameOverSummary({ athletes }: GameOverSummaryProps) {
-  // Trigger confetti on mount
+  const animationRef = useRef<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Trigger confetti on mount with proper cleanup
   useEffect(() => {
-    // Fire confetti from both sides
+    let cancelled = false;
     const duration = 3000;
     const end = Date.now() + duration;
 
     const frame = () => {
+      if (cancelled) return;
+
       confetti({
         particleCount: 3,
         angle: 60,
@@ -37,22 +42,35 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
         colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
       });
 
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
+      if (Date.now() < end && !cancelled) {
+        animationRef.current = requestAnimationFrame(frame);
       }
     };
 
     frame();
 
     // Big burst in the middle
-    setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { x: 0.5, y: 0.5 },
-        colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
-      });
+    timeoutRef.current = setTimeout(() => {
+      if (!cancelled) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { x: 0.5, y: 0.5 },
+          colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+        });
+      }
     }, 500);
+
+    // Cleanup function
+    return () => {
+      cancelled = true;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
   // Count athletes per player
@@ -88,7 +106,7 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
       content += `${index + 1}. ${athlete.name}${by}\n`;
     });
 
-    // Create and download file
+    // Create and download file with proper cleanup
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -108,73 +126,82 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
       try {
         await navigator.share({ text });
       } catch {
-        // User cancelled
+        // User cancelled or share failed - silent fail is OK
       }
     } else {
-      await navigator.clipboard.writeText(text);
-      alert("Results copied to clipboard!");
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Results copied to clipboard!");
+      } catch {
+        // Clipboard failed - alert user
+        alert("Could not copy to clipboard");
+      }
     }
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 w-full">
+    <div className="glass-card p-6 w-full">
       {/* Screenshot-friendly header section */}
-      <div className="text-center pb-4 border-b border-gray-100 mb-4">
-        <div className="text-4xl mb-2">🏆</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">
+      <div className="text-center pb-6 border-b border-[var(--border)] mb-6">
+        <div className="trophy-shine text-5xl mb-4">🏆</div>
+        <h2 className="text-2xl font-bold gradient-text mb-2">
           Game Complete!
         </h2>
-        <div className="text-6xl font-bold text-blue-600 my-3">
+        <div className="stat-value text-6xl my-4">
           {athletes.length}
         </div>
-        <p className="text-gray-500 font-medium">athletes named</p>
+        <p className="text-[var(--foreground-muted)] font-medium">athletes named</p>
       </div>
 
       {/* Player breakdown - prominent for screenshots */}
       {sortedPlayers.length > 0 && (
-        <div className="mb-4">
-          <ul className="space-y-2">
-            {sortedPlayers.map(([playerName, count], index) => (
-              <li
-                key={playerName}
-                className={`flex justify-between items-center px-4 py-3 rounded-xl ${
-                  index === 0 && sortedPlayers.length > 1
-                    ? "bg-yellow-50 border-2 border-yellow-200"
-                    : "bg-gray-50"
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  {index === 0 && sortedPlayers.length > 1 && (
-                    <span className="text-xl">🏆</span>
-                  )}
-                  <span className="font-semibold text-gray-900">{playerName}</span>
-                </span>
-                <span className="text-xl font-bold text-blue-600">{count}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="mb-6 space-y-2">
+          {sortedPlayers.map(([playerName, count], index) => (
+            <div
+              key={playerName}
+              className={`flex justify-between items-center px-4 py-3 rounded-xl ${
+                index === 0 && sortedPlayers.length > 1
+                  ? "winner-card"
+                  : "bg-[var(--background-tertiary)]"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                {index === 0 && sortedPlayers.length > 1 && (
+                  <span className="trophy-shine text-xl">🏆</span>
+                )}
+                <span className="font-semibold">{playerName}</span>
+              </span>
+              <span className="text-xl font-bold text-[var(--accent)]">{count}</span>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Action buttons */}
-      <div className="space-y-2 pt-2">
-        <div className="flex gap-2">
+      <div className="space-y-3">
+        <div className="flex gap-3">
           <button
             onClick={handleShare}
-            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+            className="secondary-button flex-1 px-4 py-3 flex items-center justify-center gap-2"
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
             Share
           </button>
           <button
             onClick={handleExport}
-            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+            className="secondary-button flex-1 px-4 py-3 flex items-center justify-center gap-2"
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
             Export
           </button>
         </div>
         <Link
           href="/"
-          className="block w-full text-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+          className="glow-button block w-full text-center px-4 py-4 text-lg"
         >
           Play Again
         </Link>

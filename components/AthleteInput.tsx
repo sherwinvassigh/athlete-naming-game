@@ -36,13 +36,12 @@ export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps
     try {
       await addAthlete({ gameId, name: name.trim(), playerName });
       setName("");
-      // Re-focus input after successful add - keeps keyboard open on mobile
+      // Re-focus input after successful add
       setTimeout(() => {
         inputRef.current?.focus();
       }, 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add athlete");
-      // Also re-focus on error so user can correct
       setTimeout(() => {
         inputRef.current?.focus();
       }, 0);
@@ -52,7 +51,7 @@ export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-md">
+    <form onSubmit={handleSubmit} className="w-full">
       <div className="flex gap-2">
         <input
           ref={inputRef}
@@ -64,7 +63,7 @@ export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps
           }}
           placeholder="Enter athlete name..."
           disabled={disabled || isSubmitting}
-          className="flex-1 px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="modern-input flex-1 px-4 py-4 text-lg"
           autoFocus
           autoComplete="off"
           autoCapitalize="words"
@@ -73,13 +72,25 @@ export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps
         <button
           type="submit"
           disabled={disabled || isSubmitting || !name.trim()}
-          className="px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="glow-button px-6 py-4 text-lg min-w-[80px]"
         >
-          {isSubmitting ? "..." : "Add"}
+          {isSubmitting ? (
+            <svg className="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          ) : (
+            "Add"
+          )}
         </button>
       </div>
       {error && (
-        <p className="mt-2 text-red-500 text-sm">{error}</p>
+        <p className="mt-3 text-red-400 text-sm flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {error}
+        </p>
       )}
     </form>
   );

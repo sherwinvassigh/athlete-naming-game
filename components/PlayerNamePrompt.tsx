@@ -17,23 +17,34 @@ export function PlayerNamePrompt({ onSubmit }: PlayerNamePromptProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
-        <p className="text-gray-600 mb-6">Enter your name to join the game</p>
-        <form onSubmit={handleSubmit}>
+    <div className="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
+      <div className="glass-card p-8 max-w-md w-full">
+        {/* Icon */}
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <span className="text-3xl">👋</span>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold text-center mb-2">Welcome!</h2>
+        <p className="text-[var(--foreground-muted)] text-center mb-8">
+          Enter your name to join the game
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg mb-4"
+            className="modern-input w-full px-4 py-4 text-lg text-center"
             autoFocus
+            autoCapitalize="words"
           />
           <button
             type="submit"
             disabled={!name.trim()}
-            className="w-full px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="glow-button w-full px-6 py-4 text-lg"
           >
             Join Game
           </button>

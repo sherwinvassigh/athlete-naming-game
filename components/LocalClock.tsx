@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 
 export function LocalClock() {
+  const [mounted, setMounted] = useState(false);
   const [time, setTime] = useState<string>("");
 
   useEffect(() => {
+    setMounted(true);
     const updateTime = () => {
       setTime(
         new Date().toLocaleTimeString([], {
@@ -21,11 +23,18 @@ export function LocalClock() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!time) return null;
+  // Show placeholder during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="text-xs text-[var(--foreground-subtle)]">
+        <span className="font-mono">--:--:--</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="text-sm text-gray-500">
-      Local time: <span className="font-mono">{time}</span>
+    <div className="text-xs text-[var(--foreground-subtle)]">
+      <span className="font-mono">{time || "--:--:--"}</span>
     </div>
   );
 }

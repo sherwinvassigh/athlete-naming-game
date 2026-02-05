@@ -1,6 +1,8 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+const MAX_NAME_LENGTH = 100;
+
 export const add = mutation({
   args: {
     gameId: v.id("games"),
@@ -8,9 +10,35 @@ export const add = mutation({
     playerName: v.string(),
   },
   handler: async (ctx, args) => {
+    // Validate game exists and is active
+    const game = await ctx.db.get(args.gameId);
+    if (!game) {
+      throw new Error("Game not found");
+    }
+    if (!game.isActive) {
+      throw new Error("This game has ended");
+    }
+    if (!game.startedAt) {
+      throw new Error("Game hasn't started yet");
+    }
+    // Check if timed game has expired
+    if (game.expiresAt && Date.now() > game.expiresAt) {
+      throw new Error("Time's up! Game has ended");
+    }
+
     const trimmedName = args.name.trim();
     if (!trimmedName) {
       throw new Error("Please enter a name");
+    }
+
+    // Validate name length
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      throw new Error(`Name must be ${MAX_NAME_LENGTH} characters or less`);
+    }
+
+    // Validate player name length
+    if (args.playerName.length > MAX_NAME_LENGTH) {
+      throw new Error("Player name is too long");
     }
 
     const normalizedName = trimmedName.toLowerCase();

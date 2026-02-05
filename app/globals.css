@@ -1,8 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Modern color palette - inspired by Linear/Vercel */
+  --background: #09090b;
+  --background-secondary: #18181b;
+  --background-tertiary: #27272a;
+  --foreground: #fafafa;
+  --foreground-muted: #a1a1aa;
+  --foreground-subtle: #71717a;
+
+  /* Accent colors */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+
+  /* Success/Winner */
+  --success: #10b981;
+  --success-glow: rgba(16, 185, 129, 0.15);
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
+
+  /* Gradients */
+  --gradient-subtle: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59, 130, 246, 0.06), transparent 40%);
 }
 
 @theme inline {
@@ -12,15 +34,230 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--background-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-subtle);
+}
+
+/* Glass card effect */
+.glass-card {
+  background: var(--gradient-subtle), var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.glass-card:hover {
+  border-color: var(--border-hover);
+}
+
+/* Glow button */
+.glow-button {
+  position: relative;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 20px var(--accent-glow), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.glow-button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 0 30px var(--accent-glow), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.glow-button:active {
+  transform: translateY(0);
+}
+
+.glow-button:disabled {
+  background: var(--background-tertiary);
+  color: var(--foreground-subtle);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Secondary button */
+.secondary-button {
+  background: var(--background-tertiary);
+  color: var(--foreground);
+  font-weight: 500;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.secondary-button:hover {
+  background: var(--background-secondary);
+  border-color: var(--border-hover);
+}
+
+/* Input styling */
+.modern-input {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--foreground);
+  transition: all 0.2s ease;
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.modern-input::placeholder {
+  color: var(--foreground-subtle);
+}
+
+.modern-input:disabled {
+  background: var(--background);
+  color: var(--foreground-subtle);
+  cursor: not-allowed;
+}
+
+/* Highlight animation for new entries */
+@keyframes highlight-fade {
+  0% {
+    background: var(--success-glow);
+    border-left-color: var(--success);
+  }
+  100% {
+    background: transparent;
+    border-left-color: transparent;
+  }
+}
+
+.highlight-new {
+  animation: highlight-fade 1.5s ease-out forwards;
+  border-left: 3px solid var(--success);
+}
+
+/* Subtle gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Trophy shine effect */
+@keyframes trophy-shine {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.trophy-shine {
+  animation: trophy-shine 2s ease-in-out infinite;
+}
+
+/* Stat card */
+.stat-card {
+  background: var(--gradient-subtle), var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  padding: 1rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-subtle);
+  margin-top: 0.25rem;
+}
+
+/* List item */
+.list-item {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.list-item:hover {
+  background: var(--background-tertiary);
+  border-color: var(--border-hover);
+}
+
+/* Modal overlay */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+/* Winner card */
+.winner-card {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(234, 179, 8, 0.02) 100%);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 12px;
 }

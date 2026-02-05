@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const DURATION_OPTIONS = [
-  { minutes: 15, label: "15 min", description: "Quick" },
-  { minutes: 30, label: "30 min", description: "Medium" },
-  { minutes: 60, label: "1 hour", description: "Full" },
-  { minutes: null, label: "Unlimited", description: "No timer" },
+  { minutes: 15, label: "15 min", description: "Quick game" },
+  { minutes: 30, label: "30 min", description: "Standard" },
+  { minutes: 60, label: "1 hour", description: "Marathon" },
+  { minutes: null, label: "∞", description: "No limit" },
 ];
 
 export default function Home() {
@@ -32,46 +32,83 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-white">
-      <div className="text-center space-y-8">
-        <h1 className="text-4xl font-bold text-gray-900">
-          Athlete Naming Game
-        </h1>
-        <p className="text-lg text-gray-600 max-w-md">
-          Challenge your friends to name as many athletes as possible!
-        </p>
+    <main className="min-h-screen flex flex-col items-center justify-center p-6">
+      {/* Subtle background gradient */}
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-950/20 via-transparent to-transparent pointer-events-none" />
+
+      <div className="relative z-10 text-center space-y-10 max-w-lg w-full">
+        {/* Logo/Title */}
+        <div className="space-y-3">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 mb-4">
+            <span className="text-3xl">⚽</span>
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight gradient-text">
+            Athlete Naming Game
+          </h1>
+          <p className="text-[var(--foreground-muted)] text-lg">
+            Challenge your friends to name as many athletes as possible
+          </p>
+        </div>
 
         {/* Duration Selection */}
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-gray-700">Choose game duration:</p>
-          <div className="flex flex-wrap justify-center gap-2">
+        <div className="glass-card p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-[var(--foreground-muted)]">
+              Game Duration
+            </span>
+            <span className="text-xs text-[var(--foreground-subtle)]">
+              Select one
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
             {DURATION_OPTIONS.map((option) => (
               <button
                 key={option.minutes ?? "unlimited"}
                 onClick={() => setSelectedDuration(option.minutes)}
-                className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                className={`relative p-3 rounded-xl transition-all duration-200 ${
                   selectedDuration === option.minutes
-                    ? "border-blue-600 bg-blue-50 text-blue-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    ? "bg-[var(--accent)] text-white shadow-lg shadow-blue-500/25"
+                    : "bg-[var(--background-tertiary)] text-[var(--foreground-muted)] hover:bg-[var(--background-secondary)] hover:text-[var(--foreground)]"
                 }`}
               >
-                <div className="font-semibold">{option.label}</div>
-                <div className="text-xs opacity-75">{option.description}</div>
+                <div className="text-lg font-bold">{option.label}</div>
+                <div className={`text-xs mt-0.5 ${
+                  selectedDuration === option.minutes
+                    ? "text-blue-100"
+                    : "text-[var(--foreground-subtle)]"
+                }`}>
+                  {option.description}
+                </div>
               </button>
             ))}
           </div>
         </div>
 
-        <button
-          onClick={handleCreateGame}
-          disabled={isCreating}
-          className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-lg"
-        >
-          {isCreating ? "Creating..." : "Create Game"}
-        </button>
-        <p className="text-sm text-gray-500">
-          Share the game link with friends, then start when ready
-        </p>
+        {/* Create Button */}
+        <div className="space-y-4">
+          <button
+            onClick={handleCreateGame}
+            disabled={isCreating}
+            className="glow-button w-full px-8 py-4 text-lg"
+          >
+            {isCreating ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Creating...
+              </span>
+            ) : (
+              "Create Game"
+            )}
+          </button>
+
+          <p className="text-sm text-[var(--foreground-subtle)]">
+            Share the link with friends, then start when everyone&apos;s ready
+          </p>
+        </div>
       </div>
     </main>
   );
