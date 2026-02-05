@@ -1,7 +1,19 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-const MAX_NAME_LENGTH = 100;
+export const MAX_NAME_LENGTH = 100;
+
+/**
+ * Normalize an athlete name for duplicate detection.
+ * Trims whitespace, strips diacritics (é→e, ñ→n), and lowercases.
+ */
+export function normalizeAthleteName(name: string): string {
+  return name
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 export const add = mutation({
   args: {
@@ -36,12 +48,16 @@ export const add = mutation({
       throw new Error(`Name must be ${MAX_NAME_LENGTH} characters or less`);
     }
 
-    // Validate player name length
-    if (args.playerName.length > MAX_NAME_LENGTH) {
+    // Validate player name
+    const trimmedPlayerName = args.playerName.trim();
+    if (!trimmedPlayerName) {
+      throw new Error("Player name is required");
+    }
+    if (trimmedPlayerName.length > MAX_NAME_LENGTH) {
       throw new Error("Player name is too long");
     }
 
-    const normalizedName = trimmedName.toLowerCase();
+    const normalizedName = normalizeAthleteName(trimmedName);
 
     // Check for duplicate
     const existing = await ctx.db
@@ -61,7 +77,7 @@ export const add = mutation({
       name: trimmedName,
       normalizedName,
       enteredAt: Date.now(),
-      playerName: args.playerName,
+      playerName: trimmedPlayerName,
     });
 
     return { success: true };

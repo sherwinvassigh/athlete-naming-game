@@ -38,6 +38,7 @@ export function PlayerNamePrompt({ onSubmit }: PlayerNamePromptProps) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name..."
             className="modern-input w-full px-4 py-4 text-lg text-center"
+            maxLength={100}
             autoFocus
             autoCapitalize="words"
           />

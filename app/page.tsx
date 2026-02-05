@@ -3,7 +3,9 @@
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const SPORTS_EMOJIS = ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏓", "🏒", "🥊", "🏋️"];
 
 const DURATION_OPTIONS = [
   { minutes: 15, label: "15 min", description: "Quick game" },
@@ -17,6 +19,15 @@ export default function Home() {
   const createGame = useMutation(api.games.create);
   const [isCreating, setIsCreating] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState<number | null>(30);
+  const [emojiIndex, setEmojiIndex] = useState(0);
+
+  // Cycle through sports emojis
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEmojiIndex((prev) => (prev + 1) % SPORTS_EMOJIS.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCreateGame = async () => {
     setIsCreating(true);
@@ -40,7 +51,12 @@ export default function Home() {
         {/* Logo/Title */}
         <div className="space-y-3">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 mb-4">
-            <span className="text-3xl">⚽</span>
+            <span
+              key={emojiIndex}
+              className="text-3xl inline-block animate-emoji-pop"
+            >
+              {SPORTS_EMOJIS[emojiIndex]}
+            </span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight gradient-text">
             Athlete Naming Game

@@ -20,6 +20,12 @@ export function GameOverSummary({ athletes }: GameOverSummaryProps) {
 
   // Trigger confetti on mount with proper cleanup
   useEffect(() => {
+    // Respect user's motion preferences
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReducedMotion) return;
+
     let cancelled = false;
     const duration = 3000;
     const end = Date.now() + duration;
