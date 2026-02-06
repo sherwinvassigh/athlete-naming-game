@@ -8,9 +8,9 @@ import { useState, useEffect } from "react";
 const SPORTS_EMOJIS = ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏓", "🏒", "🥊", "🏋️"];
 
 const DURATION_OPTIONS = [
-  { minutes: 15, label: "15 min", description: "Quick" },
-  { minutes: 30, label: "30 min", description: "Standard" },
-  { minutes: 60, label: "1 hour", description: "Marathon" },
+  { minutes: 15, label: "15m", description: "Quick" },
+  { minutes: 30, label: "30m", description: "Standard" },
+  { minutes: 60, label: "1hr", description: "Marathon" },
   { minutes: null, label: "∞", description: "No limit" },
 ];
 
@@ -82,14 +82,14 @@ export default function Home() {
               <button
                 key={option.minutes ?? "unlimited"}
                 onClick={() => setSelectedDuration(option.minutes)}
-                className={`relative p-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-between h-[72px] ${
+                className={`relative py-4 px-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-1.5 ${
                   selectedDuration === option.minutes
                     ? "bg-[var(--accent)] text-white shadow-lg shadow-blue-500/25"
                     : "bg-[var(--background-tertiary)] text-[var(--foreground-muted)] hover:bg-[var(--background-secondary)] hover:text-[var(--foreground)]"
                 }`}
               >
-                <div className="text-lg font-bold leading-tight">{option.label}</div>
-                <div className={`text-xs ${
+                <div className="text-lg font-bold leading-none">{option.label}</div>
+                <div className={`text-xs leading-none ${
                   selectedDuration === option.minutes
                     ? "text-blue-100"
                     : "text-[var(--foreground-subtle)]"
