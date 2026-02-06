@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { AthleteInput } from "@/components/AthleteInput";
 import { AthleteList } from "@/components/AthleteList";
 import { GameTimer } from "@/components/GameTimer";
-import { LocalClock } from "@/components/LocalClock";
 
 interface Player {
   _id: string;
@@ -36,7 +35,18 @@ export function ActiveGame({
   onEndGame,
 }: ActiveGameProps) {
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [copied, setCopied] = useState(false);
   const playerCount = players?.length ?? 0;
+
+  const handleCopyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Silent fail
+    }
+  }, []);
 
   return (
     <main className="min-h-screen p-4 md:p-6">
@@ -48,7 +58,6 @@ export function ActiveGame({
               <h1 className="text-lg font-bold gradient-text">
                 Athlete Naming Game
               </h1>
-              <LocalClock />
               <div className="text-sm text-[var(--foreground-subtle)] mt-1">
                 Playing as <span className="text-[var(--foreground-muted)]">{playerName}</span>
               </div>
@@ -69,7 +78,7 @@ export function ActiveGame({
           </div>
         </div>
 
-        {/* Player count & End Game */}
+        {/* Player count, Invite & End Game */}
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2 text-sm text-[var(--foreground-muted)]">
             <span className="pulse-dot inline-block w-2 h-2 rounded-full bg-green-500" />
@@ -78,12 +87,20 @@ export function ActiveGame({
               ({players?.map((p) => p.playerName).join(", ")})
             </span>
           </div>
-          <button
-            onClick={() => setShowEndConfirm(true)}
-            className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors"
-          >
-            End Game
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleCopyLink}
+              className="text-sm text-[var(--accent)] hover:text-blue-400 font-medium transition-colors"
+            >
+              {copied ? "Copied!" : "Invite"}
+            </button>
+            <button
+              onClick={() => setShowEndConfirm(true)}
+              className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors"
+            >
+              End Game
+            </button>
+          </div>
         </div>
 
         {/* End Game Confirmation Modal */}

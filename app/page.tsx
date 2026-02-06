@@ -82,14 +82,14 @@ export default function Home() {
               <button
                 key={option.minutes ?? "unlimited"}
                 onClick={() => setSelectedDuration(option.minutes)}
-                className={`relative p-3 rounded-xl transition-all duration-200 ${
+                className={`relative p-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-between h-[72px] ${
                   selectedDuration === option.minutes
                     ? "bg-[var(--accent)] text-white shadow-lg shadow-blue-500/25"
                     : "bg-[var(--background-tertiary)] text-[var(--foreground-muted)] hover:bg-[var(--background-secondary)] hover:text-[var(--foreground)]"
                 }`}
               >
-                <div className="text-lg font-bold">{option.label}</div>
-                <div className={`text-xs mt-0.5 ${
+                <div className="text-lg font-bold leading-tight">{option.label}</div>
+                <div className={`text-xs ${
                   selectedDuration === option.minutes
                     ? "text-blue-100"
                     : "text-[var(--foreground-subtle)]"

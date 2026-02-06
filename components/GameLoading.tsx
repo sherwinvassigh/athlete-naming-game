@@ -20,13 +20,13 @@ export function GameNotFound() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-6 p-6">
       <div className="glass-card p-8 text-center max-w-md">
-        <div className="text-5xl mb-4">🤔</div>
-        <h2 className="text-xl font-bold mb-2">Game Not Found</h2>
+        <div className="text-5xl mb-4">👋</div>
+        <h2 className="text-xl font-bold mb-2">Game Over</h2>
         <p className="text-[var(--foreground-muted)] mb-6">
-          This game may have been deleted or the link is incorrect.
+          This game has ended and the results have been cleared. Start a new game to play again!
         </p>
         <Link href="/" className="glow-button inline-block px-6 py-3">
-          Create New Game
+          New Game
         </Link>
       </div>
     </main>

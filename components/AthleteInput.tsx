@@ -41,7 +41,14 @@ export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps
         inputRef.current?.focus();
       }, 0);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add athlete");
+      // Convex wraps errors in verbose prefixes like "[CONVEX M(athletes:add)] Server Error..."
+      // Extract just the clean message after "Server Error" or use fallback
+      let message = "Failed to add athlete";
+      if (err instanceof Error) {
+        const serverErrorMatch = err.message.match(/Server Error[^:]*:\s*(.[\s\S]*)/);
+        message = serverErrorMatch ? serverErrorMatch[1].trim() : err.message;
+      }
+      setError(message);
       setTimeout(() => {
         inputRef.current?.focus();
       }, 0);
@@ -84,12 +91,16 @@ export function AthleteInput({ gameId, playerName, disabled }: AthleteInputProps
           )}
         </button>
       </div>
-      {error && (
+      {error ? (
         <p className="mt-3 text-red-400 text-sm flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           {error}
+        </p>
+      ) : (
+        <p className="mt-2 text-xs text-[var(--foreground-subtle)] hidden md:block">
+          Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--background-tertiary)] text-[var(--foreground-muted)] font-mono text-[10px]">Enter</kbd> to add
         </p>
       )}
     </form>
