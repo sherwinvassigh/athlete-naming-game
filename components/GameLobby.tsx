@@ -40,7 +40,7 @@ export function GameLobby({
             <span className="text-2xl">⚽</span>
           </div>
           <h1 className="text-2xl font-bold gradient-text mb-2">
-            Game Lobby
+            Name Drop — Lobby
           </h1>
           <p className="text-[var(--foreground-subtle)]">
             {durationMinutes
@@ -68,7 +68,7 @@ export function GameLobby({
         <div className="glass-card p-5 space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-[var(--foreground-muted)]">
-              Share this link
+              Invite friends to play
             </span>
             <div className="flex items-center gap-2">
               <span className="pulse-dot inline-block w-2 h-2 rounded-full bg-green-500" />
@@ -140,7 +140,7 @@ export function GameLobby({
             )}
           </button>
           <p className="text-sm text-[var(--foreground-subtle)] text-center mt-3">
-            Anyone can start when everyone&apos;s ready
+            Share the link above, then start when everyone&apos;s joined
           </p>
         </div>
       </div>

@@ -59,10 +59,10 @@ export default function Home() {
             </span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight gradient-text">
-            Athlete Naming Game
+            Name Drop
           </h1>
           <p className="text-[var(--foreground-muted)] text-lg">
-            Challenge your friends to name as many athletes as possible
+            Name as many athletes as you can — solo or with friends
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export default function Home() {
           </button>
 
           <p className="text-sm text-[var(--foreground-subtle)]">
-            Share the link with friends, then start when everyone&apos;s ready
+            Pick a duration and jump in
           </p>
         </div>
       </div>

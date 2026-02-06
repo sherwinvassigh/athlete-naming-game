@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Athlete Naming Game",
-  description: "Name as many athletes as you can in one hour!",
+  title: "Name Drop",
+  description: "Name as many athletes as you can — solo or with friends!",
 };
 
 export default function RootLayout({
