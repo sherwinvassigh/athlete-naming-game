@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 const SPORTS_EMOJIS = ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏓", "🏒", "🥊", "🏋️"];
 
 const DURATION_OPTIONS = [
-  { minutes: 15, label: "15 min", description: "Quick game" },
+  { minutes: 15, label: "15 min", description: "Quick" },
   { minutes: 30, label: "30 min", description: "Standard" },
   { minutes: 60, label: "1 hour", description: "Marathon" },
   { minutes: null, label: "∞", description: "No limit" },
